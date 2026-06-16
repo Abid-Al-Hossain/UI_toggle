@@ -3,7 +3,8 @@
 import React, { useEffect, useState } from "react";
 import { ToggleState } from "../types";
 import {
-  getFocusRing,
+  getFocusOutline,
+  getThumbBackground,
   getThumbBorderColor,
   getThumbPadding,
   getThumbScale,
@@ -50,7 +51,8 @@ export default function LivePreview({
   const trackBorderColor = getTrackBorderColor(state, checked);
   const thumbBorderColor = getThumbBorderColor(state, checked);
   const thumbScale = getThumbScale(state, hovered, pressed);
-  const focusRing = focused ? getFocusRing(state) : "none";
+  const focusOutline = focused ? getFocusOutline(state) : { outline: "none", outlineOffset: 0 };
+  const isLoading = state.loadingEnabled;
 
   return (
     <div
@@ -94,6 +96,7 @@ export default function LivePreview({
             .filter(Boolean)
             .join(" ") || undefined}
           aria-required={state.ariaRequired || undefined}
+          aria-invalid={Boolean(state.errorText) || undefined}
           required={state.ariaRequired || undefined}
           role={state.role || "switch"}
           aria-checked={checked}
@@ -115,7 +118,8 @@ export default function LivePreview({
             transition,
             cursor: state.disabled ? state.disabledCursor : "pointer",
             flexShrink: 0,
-            boxShadow: focusRing,
+            outline: focusOutline.outline,
+            outlineOffset: focusOutline.outlineOffset,
           }}
           onPointerEnter={() => {
             if (!state.disabled) setHovered(true);
@@ -140,7 +144,7 @@ export default function LivePreview({
               width: state.thumbSize,
               height: state.thumbSize,
               borderRadius: `${state.thumbBorderRadius}%`,
-              background: checked ? state.thumbOnBg : state.thumbOffBg,
+              background: getThumbBackground(state, checked),
               border:
                 state.thumbBorderWidth > 0
                   ? `${state.thumbBorderWidth}px solid ${thumbBorderColor}`
@@ -153,13 +157,28 @@ export default function LivePreview({
               touchAction: "manipulation",
             }}
           >
-              {state.thumbIcon !== "none" && (
-                <ThumbIconSVG
-                  icon={state.thumbIcon}
-                  checked={checked}
-                  color={state.thumbIconColor}
-                  size={state.thumbIconSize}
+              {isLoading ? (
+                <span
+                  aria-hidden="true"
+                  className={state.loadingAnimation === "spin" ? "animate-spin" : state.loadingAnimation === "pulse" ? "animate-pulse" : undefined}
+                  style={{
+                    display: "inline-block",
+                    width: state.thumbIconSize,
+                    height: state.thumbIconSize,
+                    borderRadius: "50%",
+                    border: `2px solid ${state.thumbIconColor}`,
+                    borderTopColor: "transparent",
+                  }}
                 />
+              ) : (
+                state.thumbIcon !== "none" && (
+                  <ThumbIconSVG
+                    icon={state.thumbIcon}
+                    checked={checked}
+                    color={state.thumbIconColor}
+                    size={state.thumbIconSize}
+                  />
+                )
               )}
           </span>
         </div>
@@ -168,7 +187,7 @@ export default function LivePreview({
             fontFamily,
             fontSize: `${state.labelFontSize}${state.fontSizeUnit}`,
             fontWeight: state.labelFontWeight,
-            color: state.labelColor,
+            color: state.disabled && state.disabledUseCustomColors ? state.disabledTextColor : state.labelColor,
             letterSpacing: `${state.labelLetterSpacing}${state.letterSpacingUnit}`,
             lineHeight: state.labelLineHeight,
             fontStyle: state.labelFontStyle,

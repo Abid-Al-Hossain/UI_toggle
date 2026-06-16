@@ -50,6 +50,8 @@ export function getTrackBackground(
   hovered: boolean,
   checked: boolean,
 ): string {
+  if (state.disabled && state.disabledUseCustomColors) return state.disabledTrackBg;
+  if (state.errorText) return state.errorTrackBg;
   if (hovered) {
     return checked ? state.hoverTrackOnBg : state.hoverTrackOffBg;
   }
@@ -58,6 +60,12 @@ export function getTrackBackground(
 
 export function getTrackBorderColor(state: ToggleState, checked: boolean): string {
   return checked ? state.trackOnBorder : state.trackOffBorder;
+}
+
+export function getThumbBackground(state: ToggleState, checked: boolean): string {
+  if (state.disabled && state.disabledUseCustomColors) return state.disabledThumbBg;
+  if (state.errorText) return state.errorThumbBg;
+  return checked ? state.thumbOnBg : state.thumbOffBg;
 }
 
 export function getThumbBorderColor(state: ToggleState, checked: boolean): string {
@@ -74,8 +82,14 @@ export function getThumbScale(
   return 1;
 }
 
-export function getFocusRing(state: ToggleState): string {
-  return `0 0 0 ${state.focusRingWidth}px ${state.focusRingColor}`;
+export function getFocusOutline(state: ToggleState): { outline: string; outlineOffset: number } {
+  if (!state.focusRingEnabled) {
+    return { outline: "none", outlineOffset: 0 };
+  }
+  return {
+    outline: `${state.focusRingWidth}px solid ${state.focusRingColor}`,
+    outlineOffset: state.focusRingOffset,
+  };
 }
 
 export function ThumbIconSVG({

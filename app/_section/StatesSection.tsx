@@ -92,6 +92,87 @@ export default function StatesSection({
               ]}
             />
           </LabeledField>
+          <LabeledField label="Use Custom Colors">
+            <Segmented
+              value={state.disabledUseCustomColors ? "true" : "false"}
+              onChange={(v) => setKey("disabledUseCustomColors")(v === "true")}
+              items={[
+                { value: "false", label: "Off" },
+                { value: "true", label: "On" },
+              ]}
+            />
+          </LabeledField>
+          <ColorControl
+            label="Disabled Track"
+            palette={PRESET_COLORS}
+            value={state.disabledTrackBg}
+            onChange={setKey("disabledTrackBg")}
+          />
+          <ColorControl
+            label="Disabled Thumb"
+            palette={PRESET_COLORS}
+            value={state.disabledThumbBg}
+            onChange={setKey("disabledThumbBg")}
+          />
+          <ColorControl
+            label="Disabled Text"
+            palette={PRESET_COLORS}
+            value={state.disabledTextColor}
+            onChange={setKey("disabledTextColor")}
+          />
+        </div>
+
+        {/* Error */}
+        <div className="pt-4 border-t border-slate-700/50 space-y-3">
+          <div
+            className="text-xs font-semibold uppercase tracking-wider"
+            style={{ color: "var(--muted)" }}
+          >
+            Validation
+          </div>
+          <ColorControl
+            label="Error Track"
+            palette={PRESET_COLORS}
+            value={state.errorTrackBg}
+            onChange={setKey("errorTrackBg")}
+          />
+          <ColorControl
+            label="Error Thumb"
+            palette={PRESET_COLORS}
+            value={state.errorThumbBg}
+            onChange={setKey("errorThumbBg")}
+          />
+        </div>
+
+        {/* Loading */}
+        <div className="pt-4 border-t border-slate-700/50 space-y-3">
+          <div
+            className="text-xs font-semibold uppercase tracking-wider"
+            style={{ color: "var(--muted)" }}
+          >
+            Loading
+          </div>
+          <LabeledField label="Enabled">
+            <Segmented
+              value={state.loadingEnabled ? "true" : "false"}
+              onChange={(v) => setKey("loadingEnabled")(v === "true")}
+              items={[
+                { value: "false", label: "Off" },
+                { value: "true", label: "On" },
+              ]}
+            />
+          </LabeledField>
+          <LabeledField label="Animation">
+            <Segmented
+              value={state.loadingAnimation}
+              onChange={(v) => setKey("loadingAnimation")(v as ToggleState["loadingAnimation"])}
+              items={[
+                { value: "spin", label: "Spin" },
+                { value: "pulse", label: "Pulse" },
+                { value: "none", label: "None" },
+              ]}
+            />
+          </LabeledField>
         </div>
       </div>
     </SectionCard>

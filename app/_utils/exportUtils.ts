@@ -42,13 +42,21 @@ export function buildToggleExportPayload(params: ToggleExportInput) {
     thumbScaleOnPress: params.thumbScaleOnPress,
     transitionDuration: params.transitionDuration,
     transitionEasing: params.transitionEasing,
+    focusRingEnabled: params.focusRingEnabled,
     focusRingColor: params.focusRingColor,
     focusRingWidth: params.focusRingWidth,
+    focusRingOffset: params.focusRingOffset,
     hoverTrackOffBg: params.hoverTrackOffBg,
     hoverTrackOnBg: params.hoverTrackOnBg,
     hoverThumbScale: params.hoverThumbScale,
     disabledOpacity: params.disabledOpacity,
     disabledCursor: params.disabledCursor,
+    disabledUseCustomColors: params.disabledUseCustomColors,
+    disabledTrackBg: params.disabledTrackBg,
+    disabledThumbBg: params.disabledThumbBg,
+    disabledTextColor: params.disabledTextColor,
+    loadingEnabled: params.loadingEnabled,
+    loadingAnimation: params.loadingAnimation,
     fontFamily: resolveFontFamily(params),
     labelFontSize: params.labelFontSize,
     fontSizeUnit: params.fontSizeUnit,
@@ -82,6 +90,8 @@ export function buildToggleExportPayload(params: ToggleExportInput) {
     helperColor: params.helperColor,
     errorText: params.errorText,
     errorColor: params.errorColor,
+    errorTrackBg: params.errorTrackBg,
+    errorThumbBg: params.errorThumbBg,
     successText: params.successText,
     successColor: params.successColor,
   };
@@ -159,7 +169,11 @@ export default function ToggleComponent() {
       ? CONFIG.hoverThumbScale
       : 1;
 
-  const trackBackground = hovered
+  const trackBackground = CONFIG.disabled && CONFIG.disabledUseCustomColors
+    ? CONFIG.disabledTrackBg
+    : CONFIG.errorText
+    ? CONFIG.errorTrackBg
+    : hovered
     ? checked
       ? CONFIG.hoverTrackOnBg
       : CONFIG.hoverTrackOffBg
@@ -167,8 +181,18 @@ export default function ToggleComponent() {
       ? CONFIG.trackOnBg
       : CONFIG.trackOffBg;
 
+  const thumbBackground = CONFIG.disabled && CONFIG.disabledUseCustomColors
+    ? CONFIG.disabledThumbBg
+    : CONFIG.errorText
+    ? CONFIG.errorThumbBg
+    : checked ? CONFIG.thumbOnBg : CONFIG.thumbOffBg;
+
   const trackBorderColor = checked ? CONFIG.trackOnBorder : CONFIG.trackOffBorder;
   const thumbBorderColor = checked ? CONFIG.thumbOnBorder : CONFIG.thumbOffBorder;
+  const focusOutline = focused && CONFIG.focusRingEnabled
+    ? { outline: CONFIG.focusRingWidth + "px solid " + CONFIG.focusRingColor, outlineOffset: CONFIG.focusRingOffset }
+    : { outline: "none", outlineOffset: 0 };
+  const isLoading = CONFIG.loadingEnabled;
 
   return (
     <label
@@ -183,6 +207,9 @@ export default function ToggleComponent() {
       dir={CONFIG.dir}
       lang={CONFIG.lang || undefined}
     >
+      {isLoading && (
+        <style>{"@keyframes toggle-spin { to { transform: rotate(360deg); } } @keyframes toggle-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }"}</style>
+      )}
       <input
         type="checkbox"
         checked={checked}
@@ -200,6 +227,7 @@ export default function ToggleComponent() {
           .filter(Boolean)
           .join(" ") || undefined}
         aria-required={CONFIG.ariaRequired || undefined}
+        aria-invalid={Boolean(CONFIG.errorText) || undefined}
         required={CONFIG.ariaRequired || undefined}
         aria-checked={checked}
         onChange={(event) => {
@@ -231,7 +259,8 @@ export default function ToggleComponent() {
               : "none",
           transition,
           cursor: CONFIG.disabled ? CONFIG.disabledCursor : "pointer",
-          boxShadow: focused ? "0 0 0 " + CONFIG.focusRingWidth + "px " + CONFIG.focusRingColor : "none",
+          outline: focusOutline.outline,
+          outlineOffset: focusOutline.outlineOffset,
           flexShrink: 0,
           touchAction: "manipulation",
         }}
@@ -245,7 +274,7 @@ export default function ToggleComponent() {
             width: CONFIG.thumbSize,
             height: CONFIG.thumbSize,
             borderRadius: CONFIG.thumbBorderRadius + "%",
-            background: checked ? CONFIG.thumbOnBg : CONFIG.thumbOffBg,
+            background: thumbBackground,
             border:
               CONFIG.thumbBorderWidth > 0
                 ? CONFIG.thumbBorderWidth + "px solid " + thumbBorderColor
@@ -257,7 +286,19 @@ export default function ToggleComponent() {
             justifyContent: "center",
           }}
         >
-          {CONFIG.thumbIcon !== "none" ? <ThumbIcon checked={checked} /> : null}
+          {isLoading ? (
+            <span
+              style={{
+                display: "inline-block",
+                width: CONFIG.thumbIconSize,
+                height: CONFIG.thumbIconSize,
+                borderRadius: "50%",
+                border: "2px solid " + CONFIG.thumbIconColor,
+                borderTopColor: "transparent",
+                animation: CONFIG.loadingAnimation === "spin" ? "toggle-spin 0.6s linear infinite" : CONFIG.loadingAnimation === "pulse" ? "toggle-pulse 1.2s ease-in-out infinite" : undefined,
+              }}
+            />
+          ) : CONFIG.thumbIcon !== "none" ? <ThumbIcon checked={checked} /> : null}
         </span>
       </span>
       <span
@@ -265,7 +306,7 @@ export default function ToggleComponent() {
           fontFamily: CONFIG.fontFamily,
           fontSize: CONFIG.labelFontSize + CONFIG.fontSizeUnit,
           fontWeight: CONFIG.labelFontWeight,
-          color: CONFIG.labelColor,
+          color: CONFIG.disabled && CONFIG.disabledUseCustomColors ? CONFIG.disabledTextColor : CONFIG.labelColor,
           letterSpacing: CONFIG.labelLetterSpacing + CONFIG.letterSpacingUnit,
           lineHeight: CONFIG.labelLineHeight,
           fontStyle: CONFIG.labelFontStyle,
