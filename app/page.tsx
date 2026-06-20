@@ -25,6 +25,7 @@ import PresetsSection from "./_section/PresetsSection";
 import { TOGGLE_PRESETS } from "./_data/presets";
 import { buildToggleExportPayload } from "./_utils/exportUtils";
 import { type ToggleState, type ToggleKeyUpdater, INITIAL_STATE } from "./types";
+import ContrastGuard from "@/components/shared/color/ContrastGuard";
 
 export default function TogglePlaygroundPage() {
   const mounted = useHydrated();
@@ -107,7 +108,6 @@ export default function TogglePlaygroundPage() {
         typeof val === "function"
           ? val(prev[key])
           : val;
-
       return {
         ...prev,
         [key]: nextValue,
@@ -161,11 +161,10 @@ export default function TogglePlaygroundPage() {
       setPreviewBgMode={setPreviewBgMode}
       previewBgInput={previewBgInput}
       setPreviewBgInput={setPreviewBgInput}
-      previewNode={<LivePreview state={state} resetKey={previewResetKey} />}
+      previewNode={<LivePreview state={state} resetKey={previewResetKey} canvasBg={previewBgInput} />}
       code={exportCode.content}
     />
   );
-
   return (
     <AppShell contentOverflow="hidden">
       <PlaygroundLayout
@@ -174,6 +173,7 @@ export default function TogglePlaygroundPage() {
         controls={controls}
         preview={preview}
       />
-    </AppShell>
+
+<ContrastGuard /></AppShell>
   );
 }

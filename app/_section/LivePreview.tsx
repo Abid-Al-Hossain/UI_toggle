@@ -16,13 +16,16 @@ import {
   resolveToggleFontFamily,
   ThumbIconSVG,
 } from "../_utils/toggleRuntime";
+import { ensureReadable } from "@/components/shared/color/wcag";
 
 export default function LivePreview({
   state,
   resetKey = 0,
+  canvasBg = "#0b1220",
 }: {
   state: ToggleState;
   resetKey?: number;
+  canvasBg?: string;
 }) {
   const [checked, setChecked] = useState(state.checked);
   const [hovered, setHovered] = useState(false);
@@ -187,7 +190,7 @@ export default function LivePreview({
             fontFamily,
             fontSize: `${state.labelFontSize}${state.fontSizeUnit}`,
             fontWeight: state.labelFontWeight,
-            color: state.disabled && state.disabledUseCustomColors ? state.disabledTextColor : state.labelColor,
+            color: state.disabled && state.disabledUseCustomColors ? state.disabledTextColor : ensureReadable(state.labelColor, canvasBg),
             letterSpacing: `${state.labelLetterSpacing}${state.letterSpacingUnit}`,
             lineHeight: state.labelLineHeight,
             fontStyle: state.labelFontStyle,
